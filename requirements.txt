@@ -3,3 +3,4 @@ dash_daq
 dash
 numpy
 pandas
+plotly

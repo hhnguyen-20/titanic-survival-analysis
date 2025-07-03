@@ -45,7 +45,7 @@ body {
 .dropdown, .other-labels {
     margin-bottom: 10px;
 }
-.update-button, .reset-button, .predict-button {
+.update-button, .reset-button, .predict-button, .download-button {
     margin-top: 10px;
     padding: 8px 12px;
     border: none;
@@ -54,7 +54,7 @@ body {
     color: white;
     cursor: pointer;
 }
-.update-button:hover, .reset-button:hover, .predict-button:hover {
+.update-button:hover, .reset-button:hover, .predict-button:hover, .download-button:hover {
     background-color: #2d8b67;
 }
 
@@ -85,6 +85,183 @@ body {
     font-weight: bold;
 }
 
+/* Model Analysis Section */
+.container4 {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+.model-analysis-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+.feature-importance-section, .prediction-history-section {
+    background-color: #f8f9fa;
+    padding: 15px;
+    border-radius: 6px;
+}
+.prediction-stats {
+    margin-top: 15px;
+    padding: 10px;
+    background-color: #e8f5e8;
+    border-radius: 4px;
+}
+
+/* Passenger Stories & Timeline Section */
+.container5 {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+.stories-timeline-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+.stories-section, .timeline-section {
+    background-color: #f8f9fa;
+    padding: 15px;
+    border-radius: 6px;
+}
+.passenger-stories {
+    max-height: 400px;
+    overflow-y: auto;
+}
+.story-card {
+    margin-bottom: 15px;
+    padding: 15px;
+    background-color: #fff;
+    border-radius: 6px;
+    border-left: 4px solid #FFBD59;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+.story-text {
+    font-style: italic;
+    color: #666;
+    margin-top: 8px;
+}
+.timeline-container {
+    max-height: 400px;
+    overflow-y: auto;
+}
+.timeline-event {
+    margin-bottom: 15px;
+    padding: 15px;
+    background-color: #fff;
+    border-radius: 6px;
+    border-left: 4px solid #3BA27A;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+/* Export Section */
+.container6 {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+.export-section {
+    background-color: #f8f9fa;
+    padding: 15px;
+    border-radius: 6px;
+}
+
+/* User Prediction History Table */
+.prediction-history-table {
+    background-color: #2c3e50;
+    border-radius: 8px;
+    padding: 20px;
+    margin-top: 20px;
+}
+
+.prediction-history-table table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+    background-color: #34495e;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.prediction-history-table th,
+.prediction-history-table td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #2c3e50;
+}
+
+.prediction-history-table th {
+    background-color: #1a252f;
+    color: #ecf0f1;
+    font-weight: bold;
+    text-transform: uppercase;
+    font-size: 0.9em;
+    letter-spacing: 0.5px;
+}
+
+.prediction-history-table td {
+    color: #ecf0f1;
+    background-color: #34495e;
+    font-size: 0.95em;
+}
+
+.prediction-history-table tr:hover {
+    background-color: #3a5a78;
+}
+
+.prediction-history-table tr:hover td {
+    background-color: #3a5a78;
+}
+
+/* CSV Export Styling */
+.csv-export-section {
+    background-color: #2c3e50;
+    border-radius: 8px;
+    padding: 20px;
+    margin-top: 20px;
+}
+
+.csv-export-section h4 {
+    color: #ecf0f1;
+    margin-bottom: 15px;
+}
+
+.csv-export-section .dash-table-container {
+    background-color: #34495e;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.csv-export-section .dash-table-container .dash-spreadsheet-container {
+    background-color: #34495e;
+}
+
+.csv-export-section .dash-table-container .dash-spreadsheet-inner {
+    background-color: #34495e;
+}
+
+.csv-export-section .dash-table-container .dash-spreadsheet-inner th {
+    background-color: #1a252f !important;
+    color: #ecf0f1 !important;
+    border-color: #2c3e50 !important;
+}
+
+.csv-export-section .dash-table-container .dash-spreadsheet-inner td {
+    background-color: #34495e !important;
+    color: #ecf0f1 !important;
+    border-color: #2c3e50 !important;
+}
+
+.csv-export-section .dash-table-container .dash-spreadsheet-inner tr:hover td {
+    background-color: #3a5a78 !important;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
     .container1 {
@@ -95,5 +272,9 @@ body {
     }
     .graphs > div {
         flex: 1 1 100%;
+    }
+    .model-analysis-grid,
+    .stories-timeline-grid {
+        grid-template-columns: 1fr;
     }
 }

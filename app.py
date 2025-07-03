@@ -7,6 +7,12 @@ import plotly.express as px
 import pandas as pd
 import joblib
 from functools import lru_cache
+import numpy as np
+from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
+import base64
+import io
+import json
+from datetime import datetime
 
 
 # Cached data loading
@@ -57,6 +63,138 @@ def status_in_class(df, klass, status):
                 status_count += 1
 
     return class_count, status_count
+
+
+def get_feature_importance(model):
+    """Get feature importance from the trained model."""
+    try:
+        return model.feature_importances_
+    except:
+        return None
+
+
+
+def get_passenger_stories():
+    """Return interesting passenger stories for the stories section."""
+    return [
+        {
+            'name': 'Margaret "Molly" Brown',
+            'class': 'First',
+            'survived': True,
+            'story': 'Known as "The Unsinkable Molly Brown", she helped organize the lifeboat evacuation and survived the disaster. She took command of Lifeboat 6 and helped row for 7 hours.',
+            'age': 45,
+            'gender': 'Female'
+        },
+        {
+            'name': 'John Jacob Astor IV',
+            'class': 'First',
+            'survived': False,
+            'story': 'One of the wealthiest passengers aboard, he helped his pregnant wife into a lifeboat but perished himself. His body was recovered with $2,440 in his pocket.',
+            'age': 47,
+            'gender': 'Male'
+        },
+        {
+            'name': 'Rose Amélie Icard',
+            'class': 'First',
+            'survived': True,
+            'story': 'A French maid who survived by clinging to a piece of debris in the freezing water for hours before being rescued.',
+            'age': 38,
+            'gender': 'Female'
+        },
+        {
+            'name': 'Benjamin Guggenheim',
+            'class': 'First',
+            'survived': False,
+            'story': 'A wealthy businessman who famously said "We are dressed in our best and are prepared to go down like gentlemen" before the ship sank.',
+            'age': 46,
+            'gender': 'Male'
+        },
+        {
+            'name': 'Isidor Straus',
+            'class': 'First',
+            'survived': False,
+            'story': 'Co-owner of Macy\'s department store, he refused to board a lifeboat while women and children were still on board. His wife Ida chose to stay with him.',
+            'age': 67,
+            'gender': 'Male'
+        },
+        {
+            'name': 'Eva Hart',
+            'class': 'Second',
+            'survived': True,
+            'story': 'A 7-year-old girl who survived with her mother. Her father perished. She later became one of the last living survivors and spoke publicly about the disaster.',
+            'age': 7,
+            'gender': 'Female'
+        },
+        {
+            'name': 'Charles Joughin',
+            'class': 'Third',
+            'survived': True,
+            'story': 'The ship\'s baker who survived by staying in the water for hours. He claimed the alcohol he consumed helped him stay warm.',
+            'age': 32,
+            'gender': 'Male'
+        },
+        {
+            'name': 'Masabumi Hosono',
+            'class': 'Second',
+            'survived': True,
+            'story': 'The only Japanese passenger aboard. He survived but faced criticism in Japan for not going down with the ship.',
+            'age': 42,
+            'gender': 'Male'
+        },
+        {
+            'name': 'Violet Jessop',
+            'class': 'Crew',
+            'survived': True,
+            'story': 'A stewardess who survived the Titanic disaster and later survived the sinking of the Britannic in 1916. She was known as "Miss Unsinkable".',
+            'age': 24,
+            'gender': 'Female'
+        },
+        {
+            'name': 'Thomas Andrews',
+            'class': 'First',
+            'survived': False,
+            'story': 'The ship\'s designer who was last seen in the first-class smoking room, staring at a painting. He helped many passengers into lifeboats.',
+            'age': 39,
+            'gender': 'Male'
+        }
+    ]
+
+
+def save_prediction_to_csv(user_input, prediction, probability):
+    """Save user prediction data to a CSV file for tracking and analysis."""
+    try:
+        # Create prediction record with timestamp
+        prediction_record = {
+            'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+            'passenger_class': user_input['Class'],
+            'gender': user_input['Gender'],
+            'age': user_input['Age'],
+            'siblings_spouses': user_input['Sibsp'],
+            'parents_children': user_input['Parch'],
+            'fare': user_input['Fare'],
+            'embark_town': user_input['Embark town'],
+            'who': user_input['Who'],
+            'adult_male': user_input['Adult male'],
+            'deck': user_input['Deck'],
+            'alone': user_input['Alone'],
+            'predicted_survival': prediction,
+            'survival_probability': probability,
+            'prediction_confidence': abs(probability - 0.5) * 2  # Distance from 0.5
+        }
+        
+        # Try to read existing file or create new one
+        try:
+            existing_data = pd.read_csv('user_predictions.csv')
+            new_data = pd.concat([existing_data, pd.DataFrame([prediction_record])], ignore_index=True)
+        except FileNotFoundError:
+            new_data = pd.DataFrame([prediction_record])
+        
+        # Save to CSV
+        new_data.to_csv('user_predictions.csv', index=False)
+        return True
+    except Exception as e:
+        print(f"Error saving prediction: {e}")
+        return False
 
 
 # -------------------------
@@ -216,6 +354,88 @@ def create_container3():
 
 
 # -------------------------
+# Division 4: Feature Importance & User Prediction History
+# -------------------------
+def create_container4():
+    """Creates the feature importance and user prediction history section."""
+    return html.Div([
+        html.H3("Model Analysis & User Predictions"),
+        html.Div([
+            # Feature Importance
+            html.Div([
+                html.H4("Feature Importance"),
+                dcc.Loading(
+                    id="loading-feature-importance",
+                    type="circle",
+                    children=dcc.Graph(id="feature-importance-plot")
+                )
+            ], className="feature-importance-section"),
+            
+            # User Prediction History
+            html.Div([
+                html.H4("User Prediction History"),
+                html.P("Track all predictions made by users of this application:"),
+                dcc.Loading(
+                    id="loading-prediction-history",
+                    type="circle",
+                    children=dcc.Graph(id="prediction-history-table")
+                ),
+                html.Div(id="prediction-stats", className="prediction-stats")
+            ], className="prediction-history-section")
+        ], className="model-analysis-grid")
+    ], id="container4", className="container4")
+
+
+
+
+
+# -------------------------
+# Division 5: Passenger Stories & Timeline
+# -------------------------
+def create_container5():
+    """Creates the passenger stories and timeline section."""
+    return html.Div([
+        html.H3("Passenger Stories & Timeline"),
+        html.Div([
+            # Passenger Stories
+            html.Div([
+                html.H4("Notable Passengers"),
+                html.Div(id="passenger-stories", className="passenger-stories")
+            ], className="stories-section"),
+            
+            # Interactive Timeline
+            html.Div([
+                html.H4("Titanic Timeline"),
+                html.Div(id="titanic-timeline", className="titanic-timeline")
+            ], className="timeline-section")
+        ], className="stories-timeline-grid")
+    ], id="container5", className="container5")
+
+
+# -------------------------
+# Division 6: Export & Download
+# -------------------------
+def create_container6():
+    """Creates the export and download functionality section."""
+    return html.Div([
+        html.H3("Export Data"),
+        html.Div([
+            html.Label("Select data to export:"),
+            dcc.Checklist(
+                id='export-options',
+                options=[
+                    {'label': 'Filtered Data', 'value': 'filtered'},
+                    {'label': 'User Predictions History', 'value': 'predictions'}
+                ],
+                value=['filtered']
+            ),
+            html.Button(id='download-button', children="Download Data", className="download-button"),
+            dcc.Download(id="download-dataframe-csv")
+        ], className="export-section")
+    ], id="container6", className="container6")
+
+
+# -------------------------
 # App Layout: Combining All Divisions
 # -------------------------
 app.layout = html.Div(
@@ -223,7 +443,10 @@ app.layout = html.Div(
     children=[
         create_container1(),
         create_container2(),
-        create_container3()
+        create_container3(),
+        create_container4(),
+        create_container5(),
+        create_container6()
     ]
 )
 
@@ -403,10 +626,14 @@ def predict_survival(n_clicks, pclass, gender, age, sibsp, parch, fare, embark):
         prediction = pipeline.predict(input_data)[0]
         proba = pipeline.predict_proba(input_data)[0][1]
 
+        # Save prediction to CSV
+        save_prediction_to_csv(input_data.iloc[0].to_dict(), prediction, proba)
+
         return html.Div([
             html.H4("Prediction:"),
             html.P(f"Survived: {'Yes' if prediction else 'No'}"),
-            html.P(f"Probability: {proba * 100:.2f}%")
+            html.P(f"Probability: {proba * 100:.2f}%"),
+            html.P("✅ Prediction saved to database", style={'color': '#3BA27A', 'font-size': '12px', 'margin-top': '10px'})
         ])
     except Exception as e:
         return html.Div([
@@ -415,5 +642,345 @@ def predict_survival(n_clicks, pclass, gender, age, sibsp, parch, fare, embark):
         ], className="error-message")
 
 
+# -------------------------
+# Callback: Feature Importance Plot
+# -------------------------
+@app.callback(
+    Output('feature-importance-plot', 'figure'),
+    Input('update-button', 'n_clicks')
+)
+def update_feature_importance(n_clicks):
+    """Update feature importance plot."""
+    feature_importance = get_feature_importance(pipeline.named_steps['model'])
+    
+    if feature_importance is None:
+        # Create a placeholder figure
+        fig = go.Figure()
+        fig.add_annotation(
+            text="Feature importance not available for this model type",
+            xref="paper", yref="paper",
+            x=0.5, y=0.5, showarrow=False,
+            font=dict(size=16)
+        )
+        fig.update_layout(title="Feature Importance")
+        return fig
+    
+    # Get feature names (assuming they match the input columns)
+    feature_names = ['Age', 'Gender', 'Sibsp', 'Parch', 'Fare', 'Class', 'Who', 'Adult male', 'Deck', 'Embark town', 'Alone']
+    
+    # Create feature importance plot
+    fig = go.Figure(data=[
+        go.Bar(
+            x=feature_names,
+            y=feature_importance,
+            marker_color='#3BA27A',
+            text=[f'{val:.3f}' for val in feature_importance],
+            textposition='auto'
+        )
+    ])
+    
+    fig.update_layout(
+        title="Feature Importance",
+        xaxis_title="Features",
+        yaxis_title="Importance Score",
+        font_family='Tahoma',
+        plot_bgcolor='rgba(255,242,204,100)'
+    )
+    
+    return fig
+
+
+
+
+
+
+
+
+# -------------------------
+# Callback: Passenger Stories
+# -------------------------
+@app.callback(
+    Output('passenger-stories', 'children'),
+    Input('update-button', 'n_clicks')
+)
+def update_passenger_stories(n_clicks):
+    """Update passenger stories section."""
+    stories = get_passenger_stories()
+    
+    stories_html = []
+    for story in stories:
+        survival_color = '#3BA27A' if story['survived'] else '#FFBD59'
+        survival_text = 'Survived' if story['survived'] else 'Perished'
+        
+        stories_html.append(html.Div([
+            html.H5(story['name']),
+            html.P(f"Class: {story['class']} | Age: {story['age']} | Gender: {story['gender']}"),
+            html.P(f"Status: {survival_text}", style={'color': survival_color, 'font-weight': 'bold'}),
+            html.P(story['story'], className="story-text")
+        ], className="story-card"))
+    
+    return html.Div(stories_html, className="stories-container")
+
+
+# -------------------------
+# Callback: Titanic Timeline
+# -------------------------
+@app.callback(
+    Output('titanic-timeline', 'children'),
+    Input('update-button', 'n_clicks')
+)
+def update_titanic_timeline(n_clicks):
+    """Update Titanic timeline section."""
+    timeline_events = [
+        {
+            'date': 'April 10, 1912',
+            'time': '12:00 PM',
+            'event': 'Titanic departs Southampton, England',
+            'description': 'The RMS Titanic begins its maiden voyage with 2,224 passengers and crew. Captain Edward Smith commands the ship.'
+        },
+        {
+            'date': 'April 10, 1912',
+            'time': '6:30 PM',
+            'event': 'Near collision with SS New York',
+            'description': 'Titanic\'s wake causes the SS New York to break its moorings, narrowly avoiding a collision.'
+        },
+        {
+            'date': 'April 11, 1912',
+            'time': '11:30 AM',
+            'event': 'Arrives in Queenstown, Ireland',
+            'description': 'Picks up 123 additional passengers and 1,385 bags of mail before heading to New York.'
+        },
+        {
+            'date': 'April 11, 1912',
+            'time': '1:30 PM',
+            'event': 'Departs Queenstown',
+            'description': 'Titanic sets sail for New York, beginning the transatlantic crossing.'
+        },
+        {
+            'date': 'April 12-13, 1912',
+            'time': 'All day',
+            'event': 'Smooth sailing across the Atlantic',
+            'description': 'The ship enjoys calm seas and good weather, with passengers enjoying the luxurious amenities.'
+        },
+        {
+            'date': 'April 14, 1912',
+            'time': '9:00 AM',
+            'event': 'Ice warnings received',
+            'description': 'Multiple ice warnings are received from other ships, but the Titanic maintains its speed.'
+        },
+        {
+            'date': 'April 14, 1912',
+            'time': '11:40 PM',
+            'event': 'Iceberg collision',
+            'description': 'Titanic strikes an iceberg on the starboard side, causing fatal damage to 6 watertight compartments.'
+        },
+        {
+            'date': 'April 14, 1912',
+            'time': '11:50 PM',
+            'event': 'Water begins flooding',
+            'description': 'Water begins flooding the forward compartments, causing the ship to tilt forward.'
+        },
+        {
+            'date': 'April 15, 1912',
+            'time': '12:05 AM',
+            'event': 'First lifeboat launched',
+            'description': 'Lifeboat 7 is launched with only 28 people (capacity: 65). Women and children first policy begins.'
+        },
+        {
+            'date': 'April 15, 1912',
+            'time': '12:45 AM',
+            'event': 'First distress signal sent',
+            'description': 'The first CQD distress signal is sent. Later changed to the new SOS signal.'
+        },
+        {
+            'date': 'April 15, 1912',
+            'time': '1:15 AM',
+            'event': 'Ship begins to list',
+            'description': 'The Titanic begins to list heavily to port as water continues to flood the ship.'
+        },
+        {
+            'date': 'April 15, 1912',
+            'time': '2:05 AM',
+            'event': 'Last lifeboat launched',
+            'description': 'Collapsible D, the last lifeboat, is launched. Many passengers remain on board.'
+        },
+        {
+            'date': 'April 15, 1912',
+            'time': '2:17 AM',
+            'event': 'Final radio message',
+            'description': 'The final radio message is sent: "Come as quickly as possible, old man; the engine-room is filling up to the boilers."'
+        },
+        {
+            'date': 'April 15, 1912',
+            'time': '2:20 AM',
+            'event': 'Titanic sinks',
+            'description': 'The ship breaks apart and sinks, taking over 1,500 lives. The stern section sinks first.'
+        },
+        {
+            'date': 'April 15, 1912',
+            'time': '3:30 AM',
+            'event': 'Carpathia arrives',
+            'description': 'The RMS Carpathia arrives at the scene and begins rescuing survivors from lifeboats.'
+        },
+        {
+            'date': 'April 18, 1912',
+            'time': '9:30 PM',
+            'event': 'Carpathia arrives in New York',
+            'description': 'The Carpathia arrives in New York with 705 survivors, ending the rescue operation.'
+        }
+    ]
+    
+    timeline_html = []
+    for event in timeline_events:
+        timeline_html.append(html.Div([
+            html.H5(f"{event['date']} - {event['time']}"),
+            html.H6(event['event']),
+            html.P(event['description'])
+        ], className="timeline-event"))
+    
+    return html.Div(timeline_html, className="timeline-container")
+
+
+# -------------------------
+# Callback: Prediction History Table
+# -------------------------
+@app.callback(
+    [Output('prediction-history-table', 'figure'),
+     Output('prediction-stats', 'children')],
+    [Input('update-button', 'n_clicks'),
+     Input('predict-button', 'n_clicks')]
+)
+def update_prediction_history(update_clicks, predict_clicks):
+    """Update prediction history table and statistics."""
+    try:
+        predictions_df = pd.read_csv('user_predictions.csv')
+        
+        if predictions_df.empty:
+            # Create empty table
+            fig = go.Figure()
+            fig.add_annotation(
+                text="No predictions made yet. Make your first prediction!",
+                xref="paper", yref="paper",
+                x=0.5, y=0.5, showarrow=False,
+                font=dict(size=16)
+            )
+            fig.update_layout(title="User Prediction History")
+            
+            stats = html.Div([
+                html.H4("Prediction Statistics"),
+                html.P("No predictions available yet.")
+            ])
+            
+            return fig, stats
+        
+        # Create table with recent predictions
+        recent_predictions = predictions_df.tail(10)  # Show last 10 predictions
+        
+        # Format the data for display
+        display_data = recent_predictions[['timestamp', 'passenger_class', 'gender', 'age', 
+                                         'predicted_survival', 'survival_probability']].copy()
+        display_data['survival_probability'] = display_data['survival_probability'].apply(lambda x: f"{x:.1%}")
+        display_data['predicted_survival'] = display_data['predicted_survival'].apply(lambda x: 'Yes' if x else 'No')
+        
+        fig = go.Figure(data=[go.Table(
+            header=dict(
+                values=['Timestamp', 'Class', 'Gender', 'Age', 'Predicted', 'Probability'],
+                fill_color='#23385c',
+                line_color='white',
+                align='center',
+                font=dict(color='white', size=13)
+            ),
+            cells=dict(
+                values=[display_data[col] for col in display_data.columns],
+                fill_color=[['#f8f9fa', '#e9ecef'] * (len(display_data) - 1)],
+                align='center',
+                font=dict(color='black', size=12)
+            )
+        )])
+        fig.update_layout(title=f"Recent Predictions (Last 10 of {len(predictions_df)} total)")
+        
+        # Calculate statistics
+        total_predictions = len(predictions_df)
+        survival_rate = predictions_df['predicted_survival'].mean() * 100
+        avg_confidence = predictions_df['prediction_confidence'].mean() * 100
+        most_common_class = predictions_df['passenger_class'].mode().iloc[0] if not predictions_df['passenger_class'].mode().empty else 'N/A'
+        
+        stats = html.Div([
+            html.H4("Prediction Statistics"),
+            html.P(f"Total Predictions: {total_predictions}"),
+            html.P(f"Average Predicted Survival Rate: {survival_rate:.1f}%"),
+            html.P(f"Average Prediction Confidence: {avg_confidence:.1f}%"),
+            html.P(f"Most Common Passenger Class: {most_common_class}")
+        ])
+        
+        return fig, stats
+        
+    except FileNotFoundError:
+        # Create empty table if file doesn't exist
+        fig = go.Figure()
+        fig.add_annotation(
+            text="No predictions made yet. Make your first prediction!",
+            xref="paper", yref="paper",
+            x=0.5, y=0.5, showarrow=False,
+            font=dict(size=16)
+        )
+        fig.update_layout(title="User Prediction History")
+        
+        stats = html.Div([
+            html.H4("Prediction Statistics"),
+            html.P("No predictions available yet.")
+        ])
+        
+        return fig, stats
+
+
+# -------------------------
+# Callback: Download Data
+# -------------------------
+@app.callback(
+    Output("download-dataframe-csv", "data"),
+    Input("download-button", "n_clicks"),
+    [State('export-options', 'value'),
+     State('class-dropdown', 'value'),
+     State('gender-dropdown', 'value')],
+    prevent_initial_call=True
+)
+def download_data(n_clicks, export_options, class_value, gender_value):
+    """Download filtered data as CSV."""
+    if not export_options:
+        return None
+    
+    # Apply filters to get filtered data
+    dff = test.copy()
+    if class_value:
+        dff = dff[dff['Class'].isin(class_value)]
+    if gender_value:
+        dff = dff[dff['Gender'].isin(gender_value)]
+    
+    # Create filename with timestamp
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    
+    if 'filtered' in export_options:
+        filename = f"titanic_filtered_data_{timestamp}.csv"
+        return dcc.send_data_frame(dff.to_csv, filename)
+    
+    if 'predictions' in export_options:
+        try:
+            predictions_df = pd.read_csv('user_predictions.csv')
+            filename = f"user_predictions_history_{timestamp}.csv"
+            return dcc.send_data_frame(predictions_df.to_csv, filename)
+        except FileNotFoundError:
+            # Create empty predictions file if it doesn't exist
+            empty_df = pd.DataFrame(columns=[
+                'timestamp', 'passenger_class', 'gender', 'age', 'siblings_spouses',
+                'parents_children', 'fare', 'embark_town', 'who', 'adult_male',
+                'deck', 'alone', 'predicted_survival', 'survival_probability', 'prediction_confidence'
+            ])
+            filename = f"user_predictions_history_{timestamp}.csv"
+            return dcc.send_data_frame(empty_df.to_csv, filename)
+    
+    return None
+
+
 if __name__ == '__main__':
-    app.run_server(debug=True)
+    app.run(debug=True)
