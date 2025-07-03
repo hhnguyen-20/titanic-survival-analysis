@@ -88,11 +88,12 @@ python3 app.py
 ### File Structure
 ```
 titanic-survival-analysis/
-├── app.py              # Main Dash application
-├── model.pkl           # Trained machine learning model
-├── test.csv            # Test dataset
-├── requirements.txt    # Python dependencies
-├── README.md          # Project documentation
+├── app.py                 # Main Dash application
+├── model.pkl              # Trained machine learning model
+├── test.csv               # Test dataset
+├── user_predictions.csv   # User predcition dataset (for future model evaluation)
+├── requirements.txt       # Python dependencies
+├── README.md              # Project documentation
 └── assets/
     ├── style.css      # Custom styling
     ├── favicon.ico    # Browser icon
