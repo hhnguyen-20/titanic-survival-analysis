@@ -1,101 +1,148 @@
 # Titanic Survival Analysis
 
-A comprehensive web application for analyzing the Titanic dataset, exploring passenger survival patterns, and predicting survival probabilities using machine learning.
+A modern web application for exploring, analyzing, and predicting Titanic passenger survival using interactive data visualizations and machine learning.
 
-## Features
+![Titanic Header](assets/titanic-sinking.png)
 
-### 🎯 Core Analysis
-- **Interactive Data Visualization**: Multiple charts including age distributions, survival rates by class, probability histograms, and scatter plots
-- **Advanced Filtering**: Filter data by passenger class, gender, and other demographics
-- **Real-time Predictions**: Predict survival probability for new passengers with an interactive form
+---
 
-## Data Understanding
+## 🚢 Overview
+
+**Titanic Survival Analysis** is an interactive Dash app that lets you:
+- Explore the Titanic dataset with rich visualizations
+- Filter and analyze survival patterns by class, gender, and more
+- Predict survival probability for new passengers using a trained ML model
+- View model insights, feature importance, and historical passenger stories
+- Export filtered data and your prediction history
+
+---
+
+## ✨ Features
+
+- **Interactive Visualizations:**
+  - Age distributions, survival rates by class/gender, fare analysis, and more
+  - Correlation matrix and statistical summaries
+- **Advanced Filtering:**
+  - Filter by passenger class, gender, and other demographics
+- **Real-time Predictions:**
+  - Input passenger details and get instant survival probability
+  - Prediction history with confidence stats
+- **Model Analysis:**
+  - Feature importance and model performance metrics
+- **Passenger Stories & Timeline:**
+  - Learn about notable passengers and key Titanic events
+- **Data Export:**
+  - Download filtered datasets or your prediction history as CSV
+- **Custom Styling:**
+  - Responsive, modern UI with custom CSS and branding
+
+---
+
+## 🚀 Quickstart
+
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/hhnguyen-20/titanic-survival-analysis.git
+   cd titanic-survival-analysis
+   ```
+2. **Create and activate a virtual environment:**
+   ```bash
+   python3 -m venv .venv
+   source .venv/bin/activate
+   ```
+3. **Install dependencies:**
+   ```bash
+   pip install -r requirements.txt
+   ```
+4. **Run the app:**
+   ```bash
+   python3 app.py
+   ```
+5. **Open your browser:**
+   - Go to [http://127.0.0.1:8050](http://127.0.0.1:8050)
+
+---
+
+## 🧑‍💻 Usage Guide
+
+### Data Exploration
+- Use filters (class, gender, etc.) and click **Update** to refresh charts
+- Explore histograms, bar plots, scatter plots, and tables
+
+### Making Predictions
+- Fill in the form in the **Predict Survival** section
+- Click **Predict** to see survival probability and add to your prediction history
+
+### Model & Advanced Analysis
+- View feature importance and model metrics
+- Explore correlation matrix and statistical summaries
+- Read historical passenger stories and Titanic timeline
+
+### Exporting Data
+- Select data to export (filtered data or predictions)
+- Click **Download Data** to save as CSV
+
+---
+
+## 📁 Project Structure
+
+```
+titanic-survival-analysis/
+├── app.py                 # Main Dash application
+├── model.pkl              # Trained ML model (scikit-learn pipeline)
+├── test.csv               # Titanic test dataset (with features & predictions)
+├── user_predictions.csv   # User prediction history (auto-generated)
+├── requirements.txt       # Python dependencies
+├── README.md              # Project documentation
+└── assets/
+    ├── style.css          # Custom styles
+    ├── favicon.ico        # App favicon
+    └── titanic-sinking.png  # Header image
+```
+
+---
+
+## 📊 Data
+
+- **test.csv:** Titanic passenger data with features like Gender, Age, Class, Fare, Embark town, etc., plus model predictions.
+- **user_predictions.csv:** Your prediction history, including input features, predicted survival, probability, and confidence.
+
+## 📚 Data Understanding
 
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1O8hWqvNMS2YY_Qe5KRHy8uR2P_X2m6Gc?usp=sharing)
 
-## Setup
+---
 
-1. Clone the repository
-```bash
-git clone https://github.com/hhnguyen-20/titanic-survival-analysis.git
-```
+## 🛠️ Technical Details
 
-2. Change the working directory
-```bash
-cd titanic-survival-analysis
-```
+- **Framework:** Dash (Plotly)
+- **ML Model:** Pre-trained scikit-learn pipeline (see `model.pkl`)
+- **Core Libraries:**
+  - dash, dash_daq, plotly, pandas, numpy, scikit-learn
+- **Custom CSS:** Responsive, modern design in `assets/style.css`
 
-3. Create a virtual environment
-```bash
-python3 -m venv .venv
-```
+---
 
-4. Activate the virtual environment
-```bash
-source .venv/bin/activate
-```
+## 📦 Requirements
 
-5. Install the dependencies
+Install all dependencies with:
 ```bash
 pip install -r requirements.txt
 ```
 
-6. Run the application
-```bash
-python3 app.py
-```
+- dash
+- dash_daq
+- plotly
+- pandas
+- numpy
+- scikit-learn==1.6.1
 
-7. Open your browser and navigate to `http://127.0.0.1:8050`
+---
 
-## Usage Guide
+## 🙏 Credits & License
 
-### Data Exploration
-1. Use the filters to select specific passenger classes and genders
-2. Click "Update" to apply filters and refresh all visualizations
-3. Explore different charts to understand survival patterns
+- Titanic dataset: [Kaggle Titanic: Machine Learning from Disaster](https://www.kaggle.com/c/titanic)
+- App author: [hhnguyen-20](https://github.com/hhnguyen-20)
+- Built with [Dash](https://dash.plotly.com/) and [scikit-learn](https://scikit-learn.org/)
 
-### Making Predictions
-1. Scroll to the "Predict Survival" section
-2. Fill in passenger details (class, gender, age, etc.)
-3. Click "Predict" to get survival probability
-
-### Advanced Analysis
-1. **Model Analysis**: View feature importance and model performance
-2. **Correlation Matrix**: Understand relationships between variables
-3. **Statistical Summary**: Get detailed statistics for numerical features
-4. **Passenger Stories**: Learn about notable passengers and historical events
-
-### Data Export
-1. Select the data you want to export using checkboxes
-2. Apply any desired filters
-3. Click "Download Data" to get a CSV file
-
-## Technical Details
-
-### Dependencies
-- **Dash**: Web framework for building analytical web applications
-- **Plotly**: Interactive plotting library
-- **Pandas**: Data manipulation and analysis
-- **Scikit-learn**: Machine learning library
-- **NumPy**: Numerical computing
-
-### Model Information
-- The application uses a pre-trained machine learning pipeline
-- Model file: `model.pkl`
-- Supports feature importance analysis (for compatible model types)
-- Includes model evaluation metrics when training data is available
-
-### File Structure
-```
-titanic-survival-analysis/
-├── app.py                 # Main Dash application
-├── model.pkl              # Trained machine learning model
-├── test.csv               # Test dataset
-├── user_predictions.csv   # User predcition dataset (for future model evaluation)
-├── requirements.txt       # Python dependencies
-├── README.md              # Project documentation
-└── assets/
-    ├── style.css      # Custom styling
-    ├── favicon.ico    # Browser icon
-    └── titanic-sinking.png  # Header image
-```
+MIT License. See [LICENSE](LICENSE) if available.
